@@ -11,8 +11,9 @@ static void* safe_realloc(void* ptr, size_t new_size) {
         fprintf(stderr, "ERROR: realloc failed for size %zu\n", new_size);
         res = ptr;
     } else {
-        memcpy(temp_ptr, ptr, new_size);
+        memcpy(temp_ptr, ptr, strlen(ptr) + 1);
         res = temp_ptr;
+        free(ptr);
     }
 
     return res;
@@ -20,7 +21,7 @@ static void* safe_realloc(void* ptr, size_t new_size) {
 
 int str_powof2(char *dst, int power) {
     int src_size = (power >> 1) + 2;
-    char *src = (char *)malloc(src_size * sizeof(char));
+    char *src = (char *) calloc(src_size, sizeof(char));
     int src_len = 1;
     src[src_size - 1] = '1';
     for (int i = 0; i < power; i++) {
@@ -36,7 +37,7 @@ int str_powof2(char *dst, int power) {
         if (mult_src[-1] != '0')
             src_len++;
     }
-    strncpy(dst, src + src_size - src_len, src_len);
+    strcpy(dst, src + src_size - src_len);
     dst[src_len] = '\0';
     free(src);
     return src_len;
