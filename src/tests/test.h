@@ -3,6 +3,6 @@
 
 #include <check.h>
 
-Suite *test_str_arithmetic();
+Suite *test_str_math();
 
 #endif
