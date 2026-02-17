@@ -5,6 +5,18 @@
 
 #define max(a, b) (((a) > (b)) ? (a) : (b))
 
+static int str_remove_trailing_zeros(char *s) {
+    int k = 0;
+
+    while (s[k] == '0')
+        k++;
+
+    if (s[k] == '\0' && s[k - 1] == '0')
+        k--;
+
+    return k;
+}
+
 static int str_positive_sum(char *dst, char *str1, char *str2) {
     int i = strlen(str1) - 1, j = strlen(str2) - 1;
     int s_size = max(i, j) + 3;
@@ -40,6 +52,7 @@ static int str_positive_sum(char *dst, char *str1, char *str2) {
         k--;
     }
     k++;
+    k += str_remove_trailing_zeros(s + k);
     strcpy(dst, s + k);
     free(s);
     return s_size - k - 1;
@@ -73,12 +86,8 @@ static int str_positive_difference(char *dst, char *str1, char *str2) {
         }
         k--;
     }
-    while (s[k + 1] == '0') {
-        k++;
-    }
-    k += 1;
-    if (s[k] == '\0' && s[k - 1] == '0')
-        k -= 1;
+    k++;
+    k += str_remove_trailing_zeros(s + k);
     strcpy(dst + negative, s + k);
     if (negative)
         dst[0] = '-';
