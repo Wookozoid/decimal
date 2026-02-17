@@ -9,6 +9,7 @@ bool str_less(char *str1, char *str2);
 bool str_less_or_equals(char *str1, char *str2);
 bool str_equals(char *str1, char *str2);
 
+int str_pow(char *dst, char *str, char *power);
 int str_powof2(char *dst, int power);
 
 int str_sum(char *dst, char *str1, char *str2);

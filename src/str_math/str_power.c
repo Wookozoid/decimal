@@ -1,6 +1,22 @@
 #include <stdlib.h>
 #include <string.h>
+#include <stdio.h>
 #include "str_math.h"
+
+static void* safe_realloc(void* ptr, size_t new_size) {
+    void *temp_ptr = calloc(new_size, sizeof(ptr[0]));
+    void *res;
+    
+    if (temp_ptr == NULL && new_size > 0) {
+        fprintf(stderr, "ERROR: realloc failed for size %zu\n", new_size);
+        res = ptr;
+    } else {
+        memcpy(temp_ptr, ptr, new_size);
+        res = temp_ptr;
+    }
+
+    return res;
+}
 
 int str_powof2(char *dst, int power) {
     int src_size = (power >> 1) + 2;
@@ -24,4 +40,26 @@ int str_powof2(char *dst, int power) {
     dst[src_len] = '\0';
     free(src);
     return src_len;
+}
+
+int str_pow(char *dst, char *str, char *power) {
+    int res = 0;
+
+    int str_len = strlen(str);
+    char *s = (char *) calloc(2, sizeof(char));
+    s[0] = '1';
+
+    int power_len = strlen(power);
+    char *pow = (char *) calloc((power_len + 1), sizeof(char));
+    pow[0] = '0';
+
+    for (;str_less(pow, power);str_sum(pow, pow, "1")) {
+        s = safe_realloc(s, res + str_len + 2);
+        res = str_mult(s, s, str);
+    }
+
+    strcpy(dst, s);
+    free(pow);
+    free(s);
+    return res;
 }
