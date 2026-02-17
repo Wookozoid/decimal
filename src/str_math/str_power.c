@@ -19,6 +19,28 @@ static void* safe_realloc(void* ptr, size_t new_size) {
     return res;
 }
 
+int str_pow(char *dst, char *str, char *power) {
+    int res = 0;
+
+    int str_len = strlen(str);
+    char *s = (char *) calloc(2, sizeof(char));
+    s[0] = '1';
+
+    int power_len = strlen(power);
+    char *pow = (char *) calloc((power_len + 1), sizeof(char));
+    pow[0] = '0';
+
+    for (;str_less(pow, power);str_sum(pow, pow, "1")) {
+        s = safe_realloc(s, res + str_len + 2);
+        res = str_mult(s, s, str);
+    }
+
+    strcpy(dst, s);
+    free(pow);
+    free(s);
+    return res;
+}
+
 int str_powof2(char *dst, int power) {
     int src_size = (power >> 1) + 2;
     char *src = (char *) calloc(src_size, sizeof(char));
@@ -41,26 +63,4 @@ int str_powof2(char *dst, int power) {
     dst[src_len] = '\0';
     free(src);
     return src_len;
-}
-
-int str_pow(char *dst, char *str, char *power) {
-    int res = 0;
-
-    int str_len = strlen(str);
-    char *s = (char *) calloc(2, sizeof(char));
-    s[0] = '1';
-
-    int power_len = strlen(power);
-    char *pow = (char *) calloc((power_len + 1), sizeof(char));
-    pow[0] = '0';
-
-    for (;str_less(pow, power);str_sum(pow, pow, "1")) {
-        s = safe_realloc(s, res + str_len + 2);
-        res = str_mult(s, s, str);
-    }
-
-    strcpy(dst, s);
-    free(pow);
-    free(s);
-    return res;
 }
