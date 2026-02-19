@@ -640,6 +640,138 @@ START_TEST(test_str_pow_8) {
 }
 END_TEST
 
+START_TEST(test_str_frac_sum1) {
+    char str1[42] = "123.456"; 
+    char str2[42] = "2.98";
+    char res[42] = "126.436";
+
+    str_sum(str1, str1, str2);
+
+    ck_assert_str_eq(res, str1);
+}
+END_TEST
+
+START_TEST(test_str_frac_sum2) {
+    char str1[42] = "123.456"; 
+    char str2[42] = "123.456";
+    char res[42] = "246.912";
+
+    str_sum(str1, str1, str2);
+
+    ck_assert_str_eq(res, str1);
+}
+END_TEST
+
+START_TEST(test_str_frac_sum3) {
+    char str1[42] = "123.456"; 
+    char str2[42] = "123152.4556986";
+    char res[42] = "123275.9116986";
+
+    str_sum(str1, str1, str2);
+
+    ck_assert_str_eq(res, str1);
+}
+END_TEST
+
+START_TEST(test_str_frac_sum4) {
+    char str1[42] = "123.456"; 
+    char str2[42] = "99.999999";
+    char res[42] = "223.455999";
+
+    str_sum(str1, str1, str2);
+
+    ck_assert_str_eq(res, str1);
+}
+END_TEST
+
+START_TEST(test_str_frac_sum5) {
+    char str1[42] = "123.00"; 
+    char str2[42] = "99.0";
+    char res[42] = "222";
+
+    str_sum(str1, str1, str2);
+
+    ck_assert_str_eq(res, str1);
+}
+END_TEST
+
+START_TEST(test_str_frac_sum6) {
+    char str1[42] = "0.00"; 
+    char str2[42] = "0";
+    char res[42] = "0";
+
+    str_sum(str1, str1, str2);
+
+    ck_assert_str_eq(res, str1);
+}
+END_TEST
+
+START_TEST(test_str_frac_sum7) {
+    char str1[42] = "123.456"; 
+    char str2[42] = "1000";
+    char res[42] = "1123.456";
+
+    str_sum(str1, str1, str2);
+
+    ck_assert_str_eq(res, str1);
+}
+END_TEST
+
+START_TEST(test_str_frac_diff1) {
+    char str1[42] = "0.00"; 
+    char str2[42] = "0";
+    char res[42] = "0";
+
+    str_diff(str1, str1, str2);
+
+    ck_assert_str_eq(res, str1);
+}
+END_TEST
+
+START_TEST(test_str_frac_diff2) {
+    char str1[42] = "1.00"; 
+    char str2[42] = "0";
+    char res[42] = "1";
+
+    str_diff(str1, str1, str2);
+
+    ck_assert_str_eq(res, str1);
+}
+END_TEST
+
+START_TEST(test_str_frac_diff3) {
+    char str1[42] = "1.01"; 
+    char str2[42] = "0";
+    char res[42] = "1.01";
+
+    str_diff(str1, str1, str2);
+
+    ck_assert_str_eq(res, str1);
+}
+END_TEST
+
+START_TEST(test_str_frac_diff4) {
+    char str1[42] = "1.01"; 
+    char str2[42] = "0.01";
+    char res[42] = "1";
+
+    str_diff(str1, str1, str2);
+
+    ck_assert_str_eq(res, str1);
+}
+END_TEST
+
+START_TEST(test_str_frac_diff5) {
+    char str1[42] = "123.456"; 
+    char str2[42] = "2.98";
+    char res[42] = "120.476";
+
+    str_diff(str1, str1, str2);
+
+    ck_assert_str_eq(res, str1);
+}
+END_TEST
+
 static void test_sum(TCase *tc_core) {
     tcase_add_test(tc_core, test_str_math_1);
     tcase_add_test(tc_core, test_str_math_2);
@@ -710,6 +842,24 @@ static void test_pow(TCase *tc_core) {
     tcase_add_test(tc_core, test_str_pow_8);
 }
 
+static void test_frac_sum(TCase *tc_core) {
+    tcase_add_test(tc_core, test_str_frac_sum1);
+    tcase_add_test(tc_core, test_str_frac_sum2);
+    tcase_add_test(tc_core, test_str_frac_sum3);
+    tcase_add_test(tc_core, test_str_frac_sum4);
+    tcase_add_test(tc_core, test_str_frac_sum5);
+    tcase_add_test(tc_core, test_str_frac_sum6);
+    tcase_add_test(tc_core, test_str_frac_sum7);
+}
+
+void test_frac_diff(TCase *tc_core) {
+    tcase_add_test(tc_core, test_str_frac_diff1);
+    tcase_add_test(tc_core, test_str_frac_diff2);
+    tcase_add_test(tc_core, test_str_frac_diff3);
+    tcase_add_test(tc_core, test_str_frac_diff4);
+    tcase_add_test(tc_core, test_str_frac_diff5);
+}
+
 Suite *test_str_math() {
     Suite *s = suite_create("test_str_math");
     TCase *tc_core = tcase_create("Core");    
@@ -718,6 +868,8 @@ Suite *test_str_math() {
     test_diff(tc_core);
     test_mult(tc_core);
     test_pow(tc_core);
+    test_frac_sum(tc_core);
+    test_frac_diff(tc_core);
 
     suite_add_tcase(s, tc_core);
 
