@@ -5,52 +5,76 @@
 
 #define max(a, b) (((a) > (b)) ? (a) : (b))
 
-static int str_add_to_result(char *s, char *str1, char *str2, int amount, bool is_sum, int back_to_digits, int adjust_next_digit) {
-    int shift = 0;
-    int mult = -(!is_sum) + is_sum;
-
-    for (; shift > -amount; shift--) {
-        s[shift] += str1[shift];
-        if (str2 != NULL) {
-            s[shift] += (str2[shift] - '0') * mult;
-        }
-        if ((is_sum && s[shift] >= 10 + '0') || (!is_sum && s[shift] < '0')) {
-            s[shift] += back_to_digits;
-            s[shift - 1] += adjust_next_digit;
-        }
-    }
-
-    return -shift;
+static void str_remove_trailing_zeros(char *s) {
+    for (int i = 0; s[i] == '0' || s[i] == '.'; i--)
+        s[i] = '\0';
 }
 
-static int str_process_fraction(char *s, char *str1, char *str2, int *ii, int *jj, int k) {
+static void str_add_to_result(char *s, char *str1, char *str2, int amount, bool is_sum) {
+    char mult = -(!is_sum) + is_sum;
+
+    for (int i = 0; i > -amount; i--) {
+        // printf("%d ", s[i]);
+        s[i] += str1[i];
+        // printf("%d ", s[i]);
+        if (str2 != NULL) {
+            s[i] += mult * (str2[i] - '0');
+        }
+        // printf("%d ", s[i]);
+        if ((is_sum && s[i] >= 10 + '0') || (!is_sum && s[i] < '0')) {
+            s[i] -= 10 * mult;
+            s[i - 1] += mult;   
+        }
+        // printf("%d\n", s[i]);
+    }
+
+}
+
+static int str_process_fraction(char *s, char *str1, char *str2, int *ii, int *jj, int k, bool is_sum) {
     int i = *ii;
     int j = *jj;
     char *point1 = strchr(str1, '.');
     char *point2 = strchr(str2, '.');
     int frac_digits1 = i - (int)((point1 != NULL ? point1 : str1 + i) - str1);
     int frac_digits2 = j - (int)((point2 != NULL ? point2 : str2 + j) - str2);
-    char *str;
-    int iter_amount;
+    int iter_amount = frac_digits1 - frac_digits2;
 
-    if (frac_digits1 > frac_digits2) {
-        str = str1;
-        iter_amount = frac_digits1 - frac_digits2;
-    } else {
-        str = str2;
-        iter_amount = frac_digits2 - frac_digits1;
+    if (frac_digits2 > frac_digits1) {
+        char *temp = str1;
+        str1 = str2;
+        str2 = temp;
+        int ti = i;
         i = j;
+        j = ti;
+        iter_amount = frac_digits2 - frac_digits1;
     }
     for (int iter = 0; iter < iter_amount; iter++) {
-        s[k] = str[i];
+        s[k] = str1[i];
         i--;
         k--;
     }
-    // int shift = str_add_to_result(s, k, str1, i, str2, j, );
-    if (frac_digits1 > frac_digits2)
-        *ii = i;
-    else
+    int shift = (frac_digits1 + frac_digits2 - iter_amount) >> 1;
+    str_add_to_result(s + k, str1 + i, str2 + j, shift, is_sum);
+    k -= shift;
+    i -= shift;
+    j -= shift;
+    
+    if (point1 != NULL) {
+        i--;
+        s[k - 1] = s[k];
+        s[k] = '.';
+        str_remove_trailing_zeros(s + k + shift + iter_amount);
+        k--;
+        if (point2 != NULL)
+            j--;
+    }
+    if (frac_digits1 < frac_digits2) {
+        *ii = j;
         *jj = i;
+    } else {
+        *ii = i;
+        *jj = j;
+    }
     return k;
 }
 
@@ -66,17 +90,14 @@ static int str_remove_zeros_at_beginning(char *s) {
     return k;
 }
 
-// static void str_remove_trailing_zeros(char *s) {
-//     for (int i = 0; s[i] == '0' || s[i] == '.'; i--)
-//         s[i] = '\0';
-// }
-
 static int str_positive_sum(char *dst, char *str1, char *str2) {
     int i = strlen(str1) - 1, j = strlen(str2) - 1;
     int s_size = max(i, j) + 3;
     char *s = (char *) calloc(s_size, sizeof(char));
-    int k = str_process_fraction(s, str1, str2, &i, &j, s_size - 2);
-    int shift = str_add_to_result(s + k, str1 + i, str2 + j, i + j + 1 - (s_size - 3), true, -10, 1);
+    int k = str_process_fraction(s, str1, str2, &i, &j, s_size - 2, true);
+    int shift = i + j + 1 - max(i, j);
+    
+    str_add_to_result(s + k, str1 + i, str2 + j, shift, true);
     k -= shift;
 
     char *ostr = str2;
@@ -87,7 +108,8 @@ static int str_positive_sum(char *dst, char *str1, char *str2) {
     }
     ostr_len -= shift;
     
-    shift = str_add_to_result(s + k, ostr + ostr_len, NULL, ostr_len + 1, true, -10, 1);
+    shift = ostr_len + 1;
+    str_add_to_result(s + k, ostr + ostr_len, NULL, shift, true);
     k -= shift;
     if (s[k] != 0) {
         s[k] += '0';
@@ -110,12 +132,14 @@ static int str_positive_difference(char *dst, char *str1, char *str2) {
     int i = strlen(str1) - 1, j = strlen(str2) - 1;
     int s_size = max(i, j) + 3;
     char *s = (char *) calloc(s_size, sizeof(char));
-    int k = str_process_fraction(s, str1, str2, &i, &j, s_size - 2);
-    int shift = str_add_to_result(s + k, str1 + i, str2 + j, i + j + 1 - (s_size - 3), false, 10, -1);
+    int k = str_process_fraction(s, str1, str2, &i, &j, s_size - 2, false);
+    int shift = i + j + 1 - max(i, j);
+    str_add_to_result(s + k, str1 + i, str2 + j, shift, false);
     k -= shift;
     i -= shift;
 
-    shift = str_add_to_result(s + k, str1 + i, NULL, i + 1, false, 10, -1);
+    shift = i + 1;
+    str_add_to_result(s + k, str1 + i, NULL, shift, false);
     k -= shift;
     k++;
     k += str_remove_zeros_at_beginning(s + k);
