@@ -14,18 +14,14 @@ static void str_add_to_result(char *s, char *str1, char *str2, int amount, bool 
     char mult = -(!is_sum) + is_sum;
 
     for (int i = 0; i > -amount; i--) {
-        // printf("%d ", s[i]);
         s[i] += str1[i];
-        // printf("%d ", s[i]);
         if (str2 != NULL) {
             s[i] += mult * (str2[i] - '0');
         }
-        // printf("%d ", s[i]);
         if ((is_sum && s[i] >= 10 + '0') || (!is_sum && s[i] < '0')) {
             s[i] -= 10 * mult;
             s[i - 1] += mult;   
         }
-        // printf("%d\n", s[i]);
     }
 
 }
@@ -38,7 +34,6 @@ static int str_process_fraction(char *s, char *str1, char *str2, int *ii, int *j
     int frac_digits1 = i - (int)((point1 != NULL ? point1 : str1 + i) - str1);
     int frac_digits2 = j - (int)((point2 != NULL ? point2 : str2 + j) - str2);
     int iter_amount = frac_digits1 - frac_digits2;
-
     if (frac_digits2 > frac_digits1) {
         char *temp = str1;
         str1 = str2;
@@ -48,17 +43,14 @@ static int str_process_fraction(char *s, char *str1, char *str2, int *ii, int *j
         j = ti;
         iter_amount = frac_digits2 - frac_digits1;
     }
-    for (int iter = 0; iter < iter_amount; iter++) {
-        s[k] = str1[i];
-        i--;
-        k--;
-    }
+    str_add_to_result(s + k, str1 + i, NULL, iter_amount, is_sum);
+    i -= iter_amount;
+    k -= iter_amount;
     int shift = (frac_digits1 + frac_digits2 - iter_amount) >> 1;
     str_add_to_result(s + k, str1 + i, str2 + j, shift, is_sum);
     k -= shift;
     i -= shift;
     j -= shift;
-    
     if (point1 != NULL) {
         i--;
         s[k - 1] = s[k];
